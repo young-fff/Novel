@@ -11,15 +11,27 @@
 
 param(
     [string]$NovelRoot = "D:\Novel\Novel\novel",
-    [string]$OutputFile = "D:\Novel\Novel\novel\打包\残域纪事_清河_全本.txt"
+    [string]$OutputFile = "D:\Novel\Novel\novel\打包\残域纪事_清河_全本.txt",
+    [string[]]$VolumeDirs = @()
 )
 
-$volumes = @(
+$allVolumes = @(
     @{ Dir = "v1_merged"; Name = "第一卷 入局" },
     @{ Dir = "v2_merged"; Name = "第二卷 借" },
     @{ Dir = "v3_merged"; Name = "第三卷 裂" },
     @{ Dir = "v4_merged"; Name = "第四卷 人" }
 )
+
+# 未指定时导出全部卷；指定时按给定目录顺序导出
+if ($VolumeDirs.Count -eq 0) {
+    $volumes = $allVolumes
+} else {
+    $volumes = @()
+    foreach ($d in $VolumeDirs) {
+        $v = $allVolumes | Where-Object { $_.Dir -eq $d }
+        if ($v) { $volumes += $v } else { Write-Warning "未知卷目录，跳过：$d" }
+    }
+}
 
 $INDENT = "　　"   # 两个全角空格
 $sb = New-Object System.Text.StringBuilder
